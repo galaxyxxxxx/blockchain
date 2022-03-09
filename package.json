@@ -1,0 +1,23 @@
+{
+  "name": "blockchain",
+  "private": true,
+  "version": "0.0.0",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "swiper": "^8.0.7",
+    "vue": "^3.2.25",
+    "vue-router": "^4.0.13"
+  },
+  "devDependencies": {
+    "eslint": "^8.9.0",
+    "eslint-plugin-prettier": "^4.0.0",
+    "eslint-plugin-vue": "^8.4.1",
+    "@vitejs/plugin-vue": "^2.2.0",
+    "less": "^4.1.2",
+    "vite": "^2.8.0"
+  }
+}
