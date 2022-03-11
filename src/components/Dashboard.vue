@@ -12,6 +12,7 @@ import { Mousewheel } from 'swiper';
 import 'swiper/css';
 const modules = [Mousewheel];
 
+// 此处为mock数据，后续需改用state中的blocks/transaction数据(需先从api中获取)
 const swiper = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16].reverse();
 
 /**
@@ -21,6 +22,7 @@ const state = reactive({
   isTouchBlock: false,
   isTouchTransaction: false,
   isShowModal: false,
+  dotIndex: -1, // 被点击的lab节点
   modalType: 1, // 1:block ; 2: transaction
   labs: [], // 节点列表
   blocks: [], //区块列表
@@ -35,8 +37,6 @@ const state = reactive({
  * @param {*} index
  */
 const toSwiperDetail = (e, type, index) => {
-  // console.log(index);
-  // console.log('click');
   if (state.isTouch) return;
   setTimeout(() => {
     if (state.isTouch) return;
@@ -46,12 +46,10 @@ const toSwiperDetail = (e, type, index) => {
 };
 // 滑动
 const touchBlock = () => {
-  console.log('begin touch');
   state.isTouchBlock = true;
 };
 const touchTransaction = () => (state.isTouchTransaction = true);
 const endTouch = () => {
-  console.log('end touch');
   state.isTouch = false;
   state.isTouchBlock = false;
   state.isTouchTransaction = false;
@@ -61,7 +59,7 @@ const touching = () => {
 };
 
 /**
- * 加载小绘卡通人物的lottie动画
+ * 加载lottie动画
  */
 const dots = ref();
 const dotsAnimation = () => {
@@ -78,14 +76,21 @@ const dotsAnimation = () => {
 const fetchData = async () => {
   state.labs = await getLabs();
   state.blocks = await getBlocks();
+  // TODO: 再加数据获取api时，加在这里
+  // Code...
 };
 
 onMounted(() => {
   dotsAnimation();
   fetchData();
+  // 轮询获取数据，时间间隔目前为10秒，如需变动，请更改下面的第87行数据的数值（单位为毫秒）
+  setInterval(() => {
+    fetchData();
+  }, 10000);
 });
 
 // block detail
+// TODO: 这里的detail是区块列表，点击某一个，查看详情时的弹窗，后续需要改为从api获取数据，并且是json对象而不是单纯的数组。这里的数据可以放到本页面第20行的state中。存证列表同理。
 const blockDetail = [
   'Channel Name',
   'Block Number',
@@ -107,11 +112,6 @@ const transactionDetail = [
   'Reads',
   'Writes',
 ];
-
-// 点击中间的地图节点
-const onClickDot = (index) => {
-  console.log({ index });
-};
 </script>
 
 <template>
@@ -232,11 +232,12 @@ const onClickDot = (index) => {
         <!-- main-dots -->
         <div class="dots-wrapper" ref="dots">
           <div class="dots-transparent-wrapper">
-            <div class="dot dot-1" @click="onClickDot(1)"></div>
-            <div class="dot dot-2"></div>
-            <div class="dot dot-3"></div>
-            <div class="dot dot-4"></div>
-            <div class="dot dot-5"></div>
+            <div
+              v-for="index in [1, 2, 3, 4, 5]"
+              :key="index"
+              :class="['dot', `dot-${index}`, state.dotIndex === index ? 'dot-active' : '']"
+              @click="state.dotIndex = index"
+            ></div>
           </div>
         </div>
         <!-- main-right -->
@@ -642,19 +643,19 @@ const onClickDot = (index) => {
             position: absolute;
             width: 80px;
             height: 80px;
-            // background: rgba(255, 255, 255, 0.2);
-            &:active {
-              &::after {
-                content: '';
-                position: absolute;
-                left: 40px;
-                top: 40px;
-                width: 1px;
-                height: 1px;
-                background: rgba(255, 255, 255, 0.16);
-                border-radius: 50%;
-                animation: 3s ease-out scaleUp infinite alternate;
-              }
+          }
+
+          .dot-active {
+            &::after {
+              content: '';
+              position: absolute;
+              left: 40px;
+              top: 40px;
+              width: 1px;
+              height: 1px;
+              background: radial-gradient(transparent, rgba(255, 255, 255, 0.2) 90%, white, white);
+              border-radius: 50%;
+              animation: 3s ease-out scaleUp infinite alternate;
             }
           }
           .dot-1 {
