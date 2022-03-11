@@ -4,10 +4,12 @@ import Login from '@components/Login.vue';
 
 const routes = [
   {
+    name: 'dashboard',
     path: '/',
     component: Dashboard,
   },
   {
+    name: 'login',
     path: '/login',
     component: Login,
   },

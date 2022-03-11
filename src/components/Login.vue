@@ -1,12 +1,43 @@
 <script setup>
-import { ref, reactive, onMounted } from 'vue';
+import { reactive } from 'vue';
+import { useRouter } from 'vue-router';
+import { login } from '@api/login';
+
 const form = reactive({
+  network: 'fe0f6e13-25af-49ba-b85f-cd7febed68f7',
+  org: '17bd71f0-125f-436c-8dd6-f7354ef8ad1b',
+  channel: 'testchan1',
+  username: 'screent',
+  password: 'Qq123!12',
+});
+
+const formInit = {
   network: '',
   org: '',
   channel: '',
-  user: '',
+  username: '',
   password: '',
-});
+};
+
+const router = useRouter();
+
+const submit = async () => {
+  // TODO: check data
+  if (form.network === '' || form.org === '' || form.channel === '' || form.username === '' || form.password === '') {
+    alert('Please enter all information');
+    return;
+  }
+
+  // submit
+  const { username, password, network, org, channel } = form;
+  const resp = await login({ username, password, network, org, channel });
+
+  if (resp) {
+    router.push({ name: 'dashboard' });
+  } else {
+    alert('登录失败，刷新试试？');
+  }
+};
 </script>
 
 <template>
@@ -15,9 +46,9 @@ const form = reactive({
       <div class="item"><input v-model="form.network" type="text" id="network" name="network" required /></div>
       <div class="item"><input v-model="form.org" type="text" id="org" name="org" required /></div>
       <div class="item"><input v-model="form.channel" type="text" id="channel" name="channel" required /></div>
-      <div class="item"><input v-model="form.user" type="text" id="user" name="user" required /></div>
+      <div class="item"><input v-model="form.username" type="text" id="username" name="username" required /></div>
       <div class="item"><input v-model="form.password" type="password" id="password" name="password" required /></div>
-      <div class="login">LOGIN</div>
+      <div class="login" @click="submit" @touchend="submit">LOGIN</div>
     </div>
   </div>
 </template>
@@ -52,12 +83,18 @@ const form = reactive({
     width: 200px;
     height: 40px;
   }
+
   input {
     width: inherit;
     height: inherit;
-    background-color: transparent;
+    background-color: transparent !important;
     border: none;
     border-bottom: 1px solid @orange;
+    outline: none;
+
+    &:focus {
+      outline: none;
+    }
   }
   .login {
     width: 200px;
@@ -68,6 +105,13 @@ const form = reactive({
     border-radius: 40px;
     margin: 20px 0;
     background-color: @orange;
+    opacity: 0.8;
+    transition: all 0.3s linear;
+    cursor: pointer;
+
+    &:hover {
+      opacity: 1;
+    }
   }
 }
 

@@ -1,21 +1,18 @@
 <script setup>
 // import base
 import { ref, reactive, onMounted } from 'vue';
-// import swiper
+
+import lottie from 'lottie-web';
+import DotsLottie from '@lottie/dots';
+
+import { getLabs, getBlocks } from '@api/data';
+
 import { Swiper, SwiperSlide } from 'swiper/vue';
 import { Mousewheel } from 'swiper';
 import 'swiper/css';
-// import lottie
-import lottie from 'lottie-web';
-import DotsLottie from '@lottie/dots';
-// import api
-// import { getSites } from '@api';
-
-// const sites = getSites();
-const sites = ['MNP分子检测实验室', '崖州科技局', '崖州科技局', '崖州科技局'];
+const modules = [Mousewheel];
 
 const swiper = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16].reverse();
-const modules = [Mousewheel];
 
 /**
  * swiper 触摸动画
@@ -25,7 +22,29 @@ const state = reactive({
   isTouchTransaction: false,
   isShowModal: false,
   modalType: 1, // 1:block ; 2: transaction
+  labs: [], // 节点列表
+  blocks: [], //区块列表
+  transactions: [], //存证列表
 });
+
+/** swiper  */
+/**
+ * 点击查看详情
+ * @param {*} e
+ * @param {*} type block or transaction
+ * @param {*} index
+ */
+const toSwiperDetail = (e, type, index) => {
+  // console.log(index);
+  // console.log('click');
+  if (state.isTouch) return;
+  setTimeout(() => {
+    if (state.isTouch) return;
+    state.modalType = type;
+    state.isShowModal = true;
+  }, 300);
+};
+// 滑动
 const touchBlock = () => {
   console.log('begin touch');
   state.isTouchBlock = true;
@@ -42,23 +61,6 @@ const touching = () => {
 };
 
 /**
- * 点击轮播中的某一个
- * @param {*} e
- * @param {*} type block or transaction
- * @param {*} index
- */
-const toSwiperDetail = (e, type, index) => {
-  // console.log(index);
-  // console.log('click');
-  if (state.isTouch) return;
-  setTimeout(() => {
-    if (state.isTouch) return;
-    state.modalType = type;
-    state.isShowModal = true;
-  }, 300);
-};
-
-/**
  * 加载小绘卡通人物的lottie动画
  */
 const dots = ref();
@@ -71,8 +73,16 @@ const dotsAnimation = () => {
     animationData: DotsLottie,
   });
 };
+
+/** fetch data */
+const fetchData = async () => {
+  state.labs = await getLabs();
+  state.blocks = await getBlocks();
+};
+
 onMounted(() => {
   dotsAnimation();
+  fetchData();
 });
 
 // block detail
@@ -131,9 +141,9 @@ const onClickDot = (index) => {
         <div class="bg-top-right">
           <span class="text-title">节点列表：</span>
           <div class="list">
-            <div class="item" v-for="(site, index) in sites.slice(0, 3)" :key="site">
+            <div class="item" v-for="(lab, index) in state.labs.slice(0, 3)" :key="lab">
               <img src="@images/icon-more@2x.png" class="icon-more" v-if="index === 2" />
-              <span class="text-subtitle" v-else>{{ site }}</span>
+              <span class="text-subtitle" v-else>{{ lab }}</span>
             </div>
           </div>
         </div>
@@ -142,7 +152,7 @@ const onClickDot = (index) => {
         <!-- main-left -->
         <div class="main-left">
           <!-- 区块列表 -->
-          <div class="block-list-wrapper list-wrapper" @touchstart="touchBlock">
+          <div class="block-list-wrapper list-wrapper" @touchstart="touchBlock" @mousedown="touchBlock">
             <div class="outline text-title">区块 <span style="font-weight: 100">列表</span></div>
             <img
               :class="['bg-line', state.isTouchBlock ? 'bg-line-transparent' : '']"
@@ -162,14 +172,14 @@ const onClickDot = (index) => {
                 v-for="(s, index) in swiper"
                 :key="s"
                 data-index="index"
-                @touchstart="toSwiperDetail(e, (type = 1), index)"
+                @touchend="toSwiperDetail(e, (type = 1), index)"
               >
-                <div class="block-title">
+                <div class="block-title" @click="toSwiperDetail(e, (type = 1), index)">
                   <img class="icon-block" src="@images/icon-block-item@2x.png" alt="block" />
                   <span class="text-normal">Block {{ s }}</span>
                   <img class="icon-data" src="@images/icon-data@2x.png" alt="icon" />
                 </div>
-                <div class="block-content">
+                <div class="block-content" @click="toSwiperDetail(e, (type = 1), index)">
                   <div class="channel-name text-detail">
                     Channel Name：<span style="font-weight: 100">testcha</span>
                   </div>
@@ -347,14 +357,16 @@ const onClickDot = (index) => {
     backdrop-filter: @backdrop-filter;
 
     .bg {
+      width: 100%;
+      height: 45px;
       position: absolute;
       top: 0;
       left: 0;
-      height: inherit;
-      object-fit: cover;
+      // object-fit: cover;
     }
 
     .content {
+      height: 45px;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -680,7 +692,8 @@ const onClickDot = (index) => {
   display: flex;
   justify-content: center;
   align-items: center;
-  backdrop-filter: @backdrop-filter;
+  backdrop-filter: blur(1px);
+  background-color: rgba(0, 0, 0, 0.6);
   z-index: 10;
   overflow: hidden;
 

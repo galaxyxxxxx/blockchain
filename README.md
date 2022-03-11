@@ -1,7 +1,16 @@
-# Vue 3 + Vite
+# Blockchain
 
-This template should help get you started developing with Vue 3 in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+崖州湾科技城育种存证区块链平台·前端，使用的技术栈为：
 
-## Recommended IDE Setup
+- 逻辑：Vue3、JavaScript
+- 样式：less
+- 轮播组件：swiper
+- 表单组件：tdesign-vue-next
+- 动效：lottie-web
+- 包管理：pnpm
 
-- [VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=johnsoncodehk.volar)
+## Run
+
+```
+npm start
+```

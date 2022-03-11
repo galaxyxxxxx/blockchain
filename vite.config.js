@@ -4,6 +4,7 @@ import path from 'path';
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  base: '/blockchain/',
   resolve: {
     alias: {
       '@': path.resolve(__dirname, 'src'),
@@ -47,6 +48,7 @@ export default defineConfig({
   },
   plugins: [vue()],
   build: {
+    outDir: './blockchain',
     minify: 'terser',
   },
   server: {
